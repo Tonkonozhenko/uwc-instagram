@@ -1,0 +1,16 @@
+doctype html
+html
+  head
+    title Torrent editor
+    script src="/javascripts/jquery.min.js"
+    script src="/javascripts/bootstrap.min.js"
+    script src="/javascripts/application.js"
+    link rel="stylesheet" href="/stylesheets/bootstrap.min.css"
+    link rel="stylesheet" href="/stylesheets/styles.css"
+  body
+    .container
+      .row
+        .col-md-12
+          h1.text-center.page-header InstaCollage
+          code = @_env
+      == yield

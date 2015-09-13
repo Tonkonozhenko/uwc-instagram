@@ -12,12 +12,19 @@ require_relative '../insta_collage'
 module InstaCollage
   class Web < Sinatra::Base
     register Padrino::Helpers
+    enable :sessions
 
     set :root, File.expand_path(File.dirname(__FILE__) + '/../../web')
     set :public_folder, -> { "#{root}/assets" }
     set :views, proc { "#{root}/views" }
     set :protect_from_csrf, false
     set :lock, false
+
+    configure :production do
+      use Rack::Auth::Basic, 'Password' do |username, password|
+        username == 'uwc' && password == 'some_very_difficult_password'
+      end
+    end
 
     configure :development do
       register Sinatra::Reloader
@@ -30,7 +37,18 @@ module InstaCollage
     end
 
     get '/' do
-      json 'test'
+      @_env = self.class.environment
+      slim :index, layout: :application
+    end
+
+    get '/login' do
+      redirect Instagram.authorize_url(redirect_uri: ENV['CALLBACK_URL'])
+    end
+
+    get '/oauth/callback' do
+      response = Instagram.get_access_token(params[:code], redirect_uri: ENV['CALLBACK_URL'])
+      session[:access_token] = response.access_token
+      redirect '/collage'
     end
   end
 end
