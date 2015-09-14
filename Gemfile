@@ -22,3 +22,5 @@ gem 'instagram'
 gem 'activesupport'
 
 gem 'rmagick'
+
+gem 'celluloid'

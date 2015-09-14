@@ -1,7 +1,7 @@
 doctype html
 html
   head
-    title Torrent editor
+    title InstaCollage
     script src="/javascripts/jquery.min.js"
     script src="/javascripts/bootstrap.min.js"
     script src="/javascripts/application.js"
@@ -12,5 +12,9 @@ html
       .row
         .col-md-12
           h1.text-center.page-header InstaCollage
-          code = @_env
       == yield
+
+      - if session[:access_token].present?
+        .row.logout
+          .col-md-12.text-center
+            a href="/logout" Logout

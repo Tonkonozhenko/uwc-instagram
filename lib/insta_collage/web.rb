@@ -6,7 +6,6 @@ require 'padrino-helpers'
 require 'slim'
 require 'better_errors'
 
-require_relative '../insta_collage/quiet_assets'
 require_relative '../insta_collage'
 
 module InstaCollage
@@ -28,7 +27,6 @@ module InstaCollage
 
     configure :development do
       register Sinatra::Reloader
-      register Sinatra::QuietAssets
 
       also_reload 'lib/insta_collage/**/*.rb'
 
@@ -37,7 +35,7 @@ module InstaCollage
     end
 
     get '/' do
-      @_env = self.class.environment
+      redirect '/collage' if session[:access_token].present?
       slim :index, layout: :application
     end
 
@@ -45,10 +43,52 @@ module InstaCollage
       redirect Instagram.authorize_url(redirect_uri: ENV['CALLBACK_URL'])
     end
 
-    get '/oauth/callback' do
+    get '/logout' do
+      session[:access_token] = nil
+      redirect '/'
+    end
+
+    get '/auth/callback' do
       response = Instagram.get_access_token(params[:code], redirect_uri: ENV['CALLBACK_URL'])
       session[:access_token] = response.access_token
       redirect '/collage'
+    end
+
+    get '/collage' do
+      redirect '/' if session[:access_token].blank?
+
+      @tag = params[:tag].presence
+      @width = params[:width].present? ? params[:width].to_i : 5
+      @height = params[:height].present? ? params[:height].to_i : 3
+      @image = Montage.new(total_media, montage_options).generate_collage
+
+      slim :collage, layout: :application
+    end
+
+    private
+    def montage_options
+      {
+        tile: "#{@width}x#{@height}"
+      }
+    end
+
+    def total_media
+      client = Instagram.client(access_token: session[:access_token])
+
+      total = @width * @height
+      enough_images = total == 0
+      images = []
+
+      until enough_images
+        images += if @tag.present?
+                    client.tag_recent_media(@tag)[0...total - images.length]
+                  else
+                    client.media_popular[0...total - images.length]
+                  end
+        enough_images = total == images.length
+      end
+
+      images
     end
   end
 end
