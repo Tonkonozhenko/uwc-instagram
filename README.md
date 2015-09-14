@@ -1,6 +1,11 @@
 Insta UWC
 ===
 
+Demo
+---
+http://insta-uwc.herokuapp.com
+
+
 Start
 ---
 Create `.env` file with such content:
