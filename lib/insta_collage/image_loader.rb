@@ -6,7 +6,7 @@ module InstaCollage
 
     def download(url)
       path = "tmp/#{Time.now.to_f}.#{url.split('/').last}"
-      `wget -O #{path} #{url} `
+      `curl #{url} > #{path}`
       path
     end
 
