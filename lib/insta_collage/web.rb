@@ -80,11 +80,7 @@ module InstaCollage
       images = []
 
       until enough_images
-        images += if @tag.present?
-                    client.tag_recent_media(@tag)[0...total - images.length]
-                  else
-                    client.media_popular[0...total - images.length]
-                  end
+        images += (@tag.present? ? client.tag_recent_media(@tag) : client.media_popular)[0...total - images.length]
         enough_images = total == images.length
       end
 
