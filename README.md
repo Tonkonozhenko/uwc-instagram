@@ -4,7 +4,8 @@ Insta UWC
 Demo
 ---
 http://insta-uwc.herokuapp.com
-
+Username: uwc
+Password: some_very_difficult_password
 
 Start
 ---
